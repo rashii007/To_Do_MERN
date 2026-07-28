@@ -1,0 +1,9 @@
+
+@import "tailwindcss";
+
+@media (prefers-color-scheme: dark) {
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+
