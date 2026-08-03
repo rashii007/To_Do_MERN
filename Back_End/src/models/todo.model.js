@@ -1,42 +1,37 @@
+// server/models/todo.model.js
 const mongoose = require("mongoose");
 
 const todoSchema = new mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      required: [true, "Title is required"],
       trim: true,
     },
-
     description: {
       type: String,
-      required: true,
+      required: [true, "Description is required"],
       trim: true,
     },
-
     completed: {
       type: Boolean,
       default: false,
     },
-
     priority: {
       type: String,
-      enum: ["Low", "Medium", "High"],
-      default: "Medium",
+      enum: ["low", "medium", "high", "urgent"],
+      default: "medium",
     },
+    // ✅ CHANGE: createdBy → user (matching controller)
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: [true, "User is required"],
     },
   },
   {
     timestamps: true,
   },
 );
-todoSchema.index({ user: 1, completed: 1 });
-todoSchema.index({ title: "text" });
 
-const todoModel = mongoose.model("Todo", todoSchema);
-
-module.exports = todoModel;
+module.exports = mongoose.model("Todo", todoSchema);
