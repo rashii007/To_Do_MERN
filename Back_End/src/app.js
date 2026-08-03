@@ -12,7 +12,7 @@ app.use(
   cookieParser({
     origin: [
       "http://localhost:5173",
-      "https://to-do-mern-sandy.vercel.app/",
+      "https://to-do-mern-sandy.vercel.app",
     ],
     credentials: true,
   }),
