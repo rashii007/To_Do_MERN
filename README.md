@@ -1,157 +1,205 @@
 # 📝 MERN Todo App
 
-A full-stack Todo Application built with the **MERN Stack** (MongoDB, Express.js, React.js, Node.js). It allows users to securely manage their daily tasks with authentication, a dashboard, dark/light mode, and responsive design.
-
-## 🚀 Features
-
-* 🔐 User Authentication (JWT)
-* 👤 User Registration & Login
-* ➕ Create Todo
-* ✏️ Update Todo
-* ✅ Mark Todo as Completed
-* 🗑️ Delete Todo
-* 📊 Dashboard with Statistics
-* 🌙 Dark & Light Mode
-* 📱 Responsive UI
-* 🔒 Protected Routes
+A modern, secure, and responsive **Todo Management Application** built with the **MERN Stack (MongoDB, Express.js, React.js, and Node.js)**. The application enables users to manage daily tasks efficiently with secure authentication, priority management, due dates, search functionality, and an elegant dark/light mode interface.
 
 ---
 
-## 🛠️ Tech Stack
+# ✨ Features
 
-### Frontend
+* 🔐 Secure User Authentication (Register & Login)
+* ✅ Create, Edit, and Delete Todos
+* ✔️ Mark Tasks as Complete or Pending
+* ⭐ Priority Levels (Low, Medium, High)
+* 📅 Due Date Management
+* 🔍 Search Todos Instantly
+* 🌙 Dark & Light Theme
+* 📱 Fully Responsive Design
+* ⚡ Fast & Modern User Interface
+* 🍪 JWT Authentication with HTTP-Only Cookies
+* 🎨 Clean Dashboard UI
+* 🔄 Real-Time UI Updates
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
 
 * React.js
 * Vite
 * Tailwind CSS
-* Axios
 * React Router DOM
+* Axios
+* Lucide React
 
-### Backend
+## Backend
 
 * Node.js
 * Express.js
 * MongoDB
 * Mongoose
 * JWT Authentication
-* bcryptjs
-* dotenv
+* Bcrypt.js
+* Cookie Parser
 
 ---
 
-## 📂 Project Structure
+# 📂 Project Structure
 
-```
-todo-app/
+```text
+Todo_MERN/
 │
-├── client/
+├── Front_End/
 │   ├── src/
-│   ├── public/
-│   └── package.json
+│   ├── components/
+│   ├── pages/
+│   ├── context/
+│   └── services/
 │
-├── server/
+├── Back_End/
+│   ├── config/
 │   ├── controllers/
 │   ├── middleware/
 │   ├── models/
 │   ├── routes/
-│   ├── config/
-│   ├── server.js
-│   └── package.json
+│   └── utils/
 │
 └── README.md
 ```
 
 ---
 
-## ⚙️ Installation
+# 🚀 Getting Started
 
-### Clone Repository
+## Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/todo-app.git
+git clone https://github.com/rashii007/To_Do_MERN.git
+```
+
+## Navigate to the Project
+
+```bash
+cd To_Do_MERN
+```
+
+---
+
+# 📦 Install Dependencies
+
+### Frontend
+
+```bash
+cd Front_End
+npm install
 ```
 
 ### Backend
 
 ```bash
-cd server
+cd ../Back_End
 npm install
 ```
 
-Create a `.env` file:
+---
+
+# ▶️ Run the Application
+
+### Start Backend Server
+
+```bash
+cd Back_End
+npm run dev
+```
+
+### Start Frontend
+
+```bash
+cd Front_End
+npm run dev
+```
+
+---
+
+# 🔐 Environment Variables
+
+Create a **.env** file inside the **Back_End** folder.
 
 ```env
 PORT=5000
+
 MONGO_URI=your_mongodb_connection_string
+
 JWT_SECRET=your_secret_key
-```
 
-Start the backend:
-
-```bash
-npm run dev
+CLIENT_URL=http://localhost:5173
 ```
 
 ---
 
-### Frontend
+# 📸 Screenshots
 
-```bash
-cd client
-npm install
-npm run dev
-```
+## Login Page
 
----
+![Login](./screenshots/login.png)
 
-## 📡 API Endpoints
+## Register Page
 
-### Authentication
+![Register](./screenshots/register.png)
 
-* `POST /api/auth/register`
-* `POST /api/auth/login`
+## Dashboard
 
-### Todos
+![Dashboard](./screenshots/dashboard.png)
 
-* `GET /api/todo/get`
-* `POST /api/todo/create`
-* `PUT /api/todo/update/:id`
-* `DELETE /api/todo/delete/:id`
+## Todo List
 
-### Dashboard
+![Todo List](./screenshots/todo-list.png)
 
-* `GET /api/dashboard`
+## Dark Mode
 
----
+![Dark Mode](./screenshots/dark-mode.png)
 
-## 📸 Screenshots
+# 🚀 Future Enhancements
 
-Add screenshots of:
-
-* Login Page
-* Register Page
-* Home Page
-* Dashboard
-* Dark Mode
+* 🔔 Email Notifications
+* 📂 Categories & Tags
+* 📆 Calendar View
+* 📊 Productivity Analytics
+* 🤝 Team Collaboration
+* 📌 Drag & Drop Tasks
+* 🔄 Recurring Todos
 
 ---
 
-## 📌 Future Improvements
+# 🤝 Contributing
 
-* Search Todos
-* Filter by Status
-* Priority Levels
-* Due Date Reminders
-* Drag & Drop
-* Pagination
-* Email Notifications
+Contributions are welcome!
+
+1. Fork the repository.
+2. Create a new feature branch.
+3. Commit your changes.
+4. Push to your branch.
+5. Open a Pull Request.
 
 ---
 
-## 👨‍💻 Author
+# 📜 License
+
+This project is licensed under the **MIT License**.
+
+---
+
+# 👨‍💻 Author
 
 **Muhammad Rashid Khan**
 
-## 📄 License
+* GitHub: https://github.com/rashii007
+* LinkedIn: *(Add your LinkedIn profile here)*
 
-This project is licensed under the MIT License.
+---
+
+## ⭐ Support
+
+If you found this project helpful, please consider giving it a **⭐ Star** on GitHub. It helps others discover the project and motivates further development.
+
+Happy Coding! 🚀
