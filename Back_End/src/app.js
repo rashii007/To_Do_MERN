@@ -13,7 +13,6 @@ app.use(
     origin: [
       "http://localhost:5173",
       "https://to-do-mern-sandy.vercel.app/",
-      "https://your-custom-domain.com",
     ],
     credentials: true,
   }),
