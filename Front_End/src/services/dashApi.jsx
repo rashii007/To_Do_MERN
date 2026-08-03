@@ -119,7 +119,7 @@ const retryRequest = async (fn, retries = 2, delay = 1000) => {
  */
 export const getDashBoard = async (params = {}) => {
   try {
-    const response = await retryRequest(() => api.get("/", { params }));
+    const response = await retryRequest(() => api.get("/dashboard", { params }));
 
     console.log("Dashboard Response:", response);
 

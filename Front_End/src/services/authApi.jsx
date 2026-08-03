@@ -126,7 +126,7 @@ export const registerUser = async (userData) => {
     }
 
     const response = await retryRequest(() =>
-      api.post("/register", {
+      api.post("/auth/register", {
         name: userData.name.trim(),
         email: userData.email.trim().toLowerCase(),
         password: userData.password,
@@ -159,7 +159,7 @@ export const loginUser = async (loginData) => {
       throw new Error("Password is required");
     }
 
-    const response = await api.post("/login", {
+    const response = await api.post("/auth/login", {
       email: loginData.email.trim().toLowerCase(),
       password: loginData.password,
     });
@@ -168,7 +168,7 @@ export const loginUser = async (loginData) => {
 
     const data = response.data;
 
-    // ✅ Return complete data with user
+    //   ✅ Return complete data with user
     return {
       success: data.success || true,
       message: data.message || "Login successful",
@@ -196,7 +196,7 @@ export const logoutUser = async () => {
 
     const response = await retryRequest(() =>
       api.post(
-        "/logout",
+        "/auth/logout",
         {},
         {
           headers: {

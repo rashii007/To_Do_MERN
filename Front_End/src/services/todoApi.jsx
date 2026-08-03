@@ -60,7 +60,7 @@ export const createTodo = async (data) => {
   try {
     console.log("Creating todo with data:", data); // Debug
     
-    const response = await api.post("/create", {
+    const response = await api.post("/todo/create", {
       title: data.title,
       description: data.description,
       priority: data.priority || "medium",
@@ -78,7 +78,7 @@ export const createTodo = async (data) => {
 // ✅ Get All Todos
 export const getTodos = async () => {
   try {
-    const response = await api.get("/get");
+    const response = await api.get("/todo/get");
     return response;
   } catch (error) {
     console.error("Error fetching todos:", error);
@@ -89,7 +89,7 @@ export const getTodos = async () => {
 // ✅ Update Todo
 export const updateTodo = async (id, data) => {
   try {
-    const response = await api.put(`/update/${id}`, {
+    const response = await api.put(`/todo/update/${id}`, {
       title: data.title,
       description: data.description,
       completed: data.completed,
@@ -105,7 +105,7 @@ export const updateTodo = async (id, data) => {
 // ✅ Delete Todo
 export const deleteTodo = async (id) => {
   try {
-    const response = await api.delete(`/delete/${id}`);
+    const response = await api.delete(`/todo/delete/${id}`);
     return response;
   } catch (error) {
     console.error("Error deleting todo:", error);
