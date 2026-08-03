@@ -61,7 +61,7 @@ const TodoList = ({
   };
 
   return (
-    <div className="max-w-6xl mx-auto mt-8 px-4">
+    <div className="w-full mx-auto mt-8 px-4">
       {/* Filter and Sort Controls */}
       <div className="flex flex-wrap gap-2 mb-6 p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl backdrop-blur-sm">
         <div className="flex flex-wrap gap-2 flex-1">
