@@ -806,7 +806,8 @@ const Home = () => {
         <footer className="mt-12 pt-6 border-t border-slate-200 dark:border-slate-700/50">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
             <p className="text-sm text-slate-500 dark:text-slate-400">
-              © 2024 MERN Todo App. All rights reserved.
+              © 2026 MERN Todo App. Designed & Developed by Muhammad Rashid
+              Khan.
             </p>
             <div className="flex items-center gap-4">
               <span className="text-xs text-slate-400 dark:text-slate-500">

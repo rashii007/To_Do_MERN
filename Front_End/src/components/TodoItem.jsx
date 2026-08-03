@@ -37,19 +37,15 @@ const TodoItem = ({
   onEdit,
   onDuplicate,
   onArchive,
-  onShare,
-  onAddNote,
-  onAddTag,
   onToggleImportant,
   onTogglePrivate,
+  onAddNote,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [showNoteInput, setShowNoteInput] = useState(false);
   const [note, setNote] = useState("");
-  const [showTags, setShowTags] = useState(false);
-  const [newTag, setNewTag] = useState("");
   const menuRef = useRef(null);
   const noteRef = useRef(null);
 
@@ -66,6 +62,15 @@ const TodoItem = ({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Handle adding a note
+  const handleAddNoteSubmit = () => {
+    if (note.trim() && onAddNote) {
+      onAddNote(todo._id, note.trim());
+      setNote("");
+      setShowNoteInput(false);
+    }
+  };
 
   // Get time ago string
   const timeAgo = (date) => {
@@ -133,7 +138,7 @@ const TodoItem = ({
   const priorityConfig = getPriorityConfig();
   const PriorityIcon = priorityConfig.icon;
 
-  // Calculate completion percentage based on subtasks
+  // Calculate completion percentage
   const getCompletionPercentage = () => {
     if (todo.subtasks && todo.subtasks.length > 0) {
       const completed = todo.subtasks.filter((st) => st.completed).length;
@@ -162,9 +167,22 @@ const TodoItem = ({
     return colors[category] || colors.work;
   };
 
+  // ✅ FIXED: Toggle complete function
+  const toggleComplete = () => {
+    console.log("🔄 Toggling complete for:", todo._id);
+    console.log("📤 Current status:", todo.completed);
+    console.log("📤 New status:", !todo.completed);
+
+    if (todo._id) {
+      updateTodo(todo._id, { completed: !todo.completed });
+    } else {
+      updateTodo({ ...todo, completed: !todo.completed });
+    }
+  };
+
   return (
     <div
-      className="relative group"
+      className="relative group h-full"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -182,7 +200,7 @@ const TodoItem = ({
       <div
         className={`
           relative bg-white dark:bg-slate-800/90 backdrop-blur-sm 
-          rounded-2xl p-6 border transition-all duration-500
+          rounded-2xl p-5 border transition-all duration-500 h-full flex flex-col
           ${
             todo.completed
               ? "border-green-200 dark:border-green-800/50 opacity-70"
@@ -190,25 +208,25 @@ const TodoItem = ({
           }
           ${todo.important ? "border-yellow-400 dark:border-yellow-500/50" : ""}
           ${isHovered ? "shadow-2xl scale-[1.02]" : "shadow-lg hover:shadow-xl"}
-          ${isExpanded ? "pb-8" : ""}
+          ${isExpanded ? "pb-6" : ""}
         `}
       >
-        {/* NEW: Important Badge */}
+        {/* Important Badge */}
         {todo.important && (
           <div className="absolute -top-2 -left-2">
-            <div className="px-3 py-1 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-xs font-bold shadow-lg flex items-center gap-1 animate-pulse">
-              <Star className="w-3 h-3 fill-current" />
+            <div className="px-2 py-0.5 rounded-full bg-gradient-to-r from-yellow-400 to-yellow-500 text-white text-[10px] font-bold shadow-lg flex items-center gap-1 animate-pulse">
+              <Star className="w-2.5 h-2.5 fill-current" />
               <span>IMPORTANT</span>
             </div>
           </div>
         )}
 
-        {/* Completion Status Badge */}
+        {/* ✅ FIXED: Completion Status Badge */}
         <div className="absolute -top-2 -right-2">
           <div
             className={`
-              px-3 py-1 rounded-full text-xs font-bold shadow-lg flex items-center gap-1
-              transition-all duration-300 animate-pulse
+              px-2 py-0.5 rounded-full text-[10px] font-bold shadow-lg flex items-center gap-1
+              transition-all duration-300
               ${
                 todo.completed
                   ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
@@ -218,12 +236,12 @@ const TodoItem = ({
           >
             {todo.completed ? (
               <>
-                <CheckCircle className="w-3 h-3" />
+                <CheckCircle className="w-2.5 h-2.5" />
                 <span>DONE</span>
               </>
             ) : (
               <>
-                <Clock className="w-3 h-3 animate-spin" />
+                <Clock className="w-2.5 h-2.5 animate-spin" />
                 <span>PENDING</span>
               </>
             )}
@@ -231,12 +249,12 @@ const TodoItem = ({
         </div>
 
         {/* Header - Title & Actions */}
-        <div className="flex justify-between items-start gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 flex-wrap">
-              <h2
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3
                 className={`
-                  text-2xl font-bold transition-all duration-300
+                  text-lg font-bold transition-all duration-300 truncate
                   ${
                     todo.completed
                       ? "text-gray-400 dark:text-gray-500 line-through"
@@ -245,171 +263,142 @@ const TodoItem = ({
                 `}
               >
                 {todo.title}
-              </h2>
+              </h3>
 
-              {/* NEW: Category Badge */}
+              {/* Category Badge */}
               {todo.category && (
                 <span
                   className={`
-                  text-xs px-2 py-0.5 rounded-full border font-medium
+                  text-[10px] px-1.5 py-0.5 rounded-full border font-medium
                   ${getCategoryColor(todo.category)}
                 `}
                 >
-                  # {todo.category}
+                  #{todo.category}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2 mt-2 flex-wrap">
-              {/* Priority Badge - Enhanced */}
+            <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+              {/* Priority Badge */}
               <span
                 className={`
-                  text-xs px-2 py-0.5 rounded-full border font-medium flex items-center gap-1
+                  text-[10px] px-1.5 py-0.5 rounded-full border font-medium flex items-center gap-0.5
                   ${priorityConfig.bg} ${priorityConfig.text} ${priorityConfig.border}
                 `}
               >
-                <PriorityIcon className="w-3 h-3" />
+                <PriorityIcon className="w-2.5 h-2.5" />
                 {priorityConfig.label}
               </span>
 
-              {/* NEW: Private Badge */}
+              {/* Private Badge */}
               {todo.isPrivate && (
-                <span className="text-xs px-2 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center gap-1">
-                  <EyeOff className="w-3 h-3" />
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 flex items-center gap-0.5">
+                  <EyeOff className="w-2.5 h-2.5" />
                   Private
                 </span>
               )}
 
-              {todo.completed && (
-                <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
-                  <Sparkles className="w-3 h-3" />
-                  Completed!
-                </span>
-              )}
-
-              {/* NEW: Has Notes Indicator */}
+              {/* Notes Indicator */}
               {todo.notes && todo.notes.length > 0 && (
-                <span className="text-xs text-blue-600 dark:text-blue-400 flex items-center gap-1">
-                  <MessageCircle className="w-3 h-3" />
-                  {todo.notes.length} notes
-                </span>
-              )}
-
-              {/* NEW: Has Attachments Indicator */}
-              {todo.attachments && todo.attachments.length > 0 && (
-                <span className="text-xs text-purple-600 dark:text-purple-400 flex items-center gap-1">
-                  <Paperclip className="w-3 h-3" />
-                  {todo.attachments.length} files
+                <span className="text-[10px] text-blue-600 dark:text-blue-400 flex items-center gap-0.5">
+                  <MessageCircle className="w-2.5 h-2.5" />
+                  {todo.notes.length}
                 </span>
               )}
             </div>
           </div>
 
-          {/* More Options Menu - Enhanced */}
-          <div className="relative" ref={menuRef}>
+          {/* More Options Menu */}
+          <div className="relative flex-shrink-0" ref={menuRef}>
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
+              className="p-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors"
             >
-              <MoreVertical className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
             </button>
 
             {showMenu && (
-              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 py-1 z-10 animate-fadeIn">
-                {/* Edit */}
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-slate-700 py-1 z-10">
                 <button
-                  onClick={() => onEdit && onEdit(todo)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  onClick={() => {
+                    onEdit && onEdit(todo);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
-                  <Edit2 className="w-4 h-4" />
-                  Edit Todo
+                  <Edit2 className="w-3.5 h-3.5" />
+                  Edit
                 </button>
 
-                {/* Duplicate - NEW */}
                 <button
-                  onClick={() => onDuplicate && onDuplicate(todo)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  onClick={() => {
+                    onDuplicate && onDuplicate(todo);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
-                  <Copy className="w-4 h-4" />
+                  <Copy className="w-3.5 h-3.5" />
                   Duplicate
                 </button>
 
-                {/* Important Toggle - NEW */}
                 <button
-                  onClick={() =>
-                    onToggleImportant && onToggleImportant(todo._id)
-                  }
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  onClick={() => {
+                    onToggleImportant && onToggleImportant(todo._id);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
                   <Star
-                    className={`w-4 h-4 ${todo.important ? "fill-yellow-400 text-yellow-400" : ""}`}
+                    className={`w-3.5 h-3.5 ${todo.important ? "fill-yellow-400 text-yellow-400" : ""}`}
                   />
-                  {todo.important
-                    ? "Remove from Important"
-                    : "Mark as Important"}
+                  {todo.important ? "Remove Important" : "Mark Important"}
                 </button>
 
-                {/* Private Toggle - NEW */}
                 <button
-                  onClick={() => onTogglePrivate && onTogglePrivate(todo._id)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  onClick={() => {
+                    onTogglePrivate && onTogglePrivate(todo._id);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
                   {todo.isPrivate ? (
-                    <Eye className="w-4 h-4" />
+                    <Eye className="w-3.5 h-3.5" />
                   ) : (
-                    <EyeOff className="w-4 h-4" />
+                    <EyeOff className="w-3.5 h-3.5" />
                   )}
                   {todo.isPrivate ? "Make Public" : "Make Private"}
                 </button>
 
-                {/* Add Note - NEW */}
                 <button
                   onClick={() => setShowNoteInput(true)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <MessageCircle className="w-3.5 h-3.5" />
                   Add Note
                 </button>
 
-                {/* Add Tag - NEW */}
                 <button
-                  onClick={() => setShowTags(true)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
+                  onClick={() => {
+                    onArchive && onArchive(todo._id);
+                    setShowMenu(false);
+                  }}
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
                 >
-                  <Tag className="w-4 h-4" />
-                  Add Tag
-                </button>
-
-                {/* Archive - NEW */}
-                <button
-                  onClick={() => onArchive && onArchive(todo._id)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
-                >
-                  <Archive className="w-4 h-4" />
+                  <Archive className="w-3.5 h-3.5" />
                   Archive
                 </button>
 
                 <div className="border-t border-gray-200 dark:border-slate-700 my-1"></div>
 
-                {/* Share - NEW */}
-                <button
-                  onClick={() => onShare && onShare(todo)}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 text-gray-700 dark:text-gray-300"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Share
-                </button>
-
-                {/* Delete */}
                 <button
                   onClick={() => {
                     removeTodo(todo._id);
                     setShowMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left text-sm hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-600 dark:text-red-400"
+                  className="w-full px-3 py-1.5 text-left text-xs hover:bg-red-50 dark:hover:bg-red-900/30 flex items-center gap-2 text-red-600 dark:text-red-400"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  Delete Permanently
+                  <Trash2 className="w-3.5 h-3.5" />
+                  Delete
                 </button>
               </div>
             )}
@@ -419,53 +408,63 @@ const TodoItem = ({
         {/* Description */}
         <p
           className={`
-            mt-3 text-gray-600 dark:text-gray-300 leading-relaxed
+            mt-2 text-sm text-gray-600 dark:text-gray-300 leading-relaxed flex-1
             ${isExpanded ? "" : "line-clamp-2"}
             transition-all duration-300
           `}
         >
-          {todo.description}
+          {todo.description || "No description"}
         </p>
 
-        {/* NEW: Notes Section */}
+        {/* Notes Section */}
         {todo.notes && todo.notes.length > 0 && (
-          <div className="mt-3 p-3 bg-gray-50 dark:bg-slate-700/30 rounded-xl">
-            <div className="flex items-center gap-2 text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-              <MessageCircle className="w-3 h-3" />
+          <div className="mt-2 p-2 bg-gray-50 dark:bg-slate-700/30 rounded-lg">
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold text-gray-600 dark:text-gray-400 mb-1">
+              <MessageCircle className="w-2.5 h-2.5" />
               <span>Notes</span>
             </div>
-            {todo.notes.map((note, idx) => (
+            {todo.notes.slice(0, 2).map((note, idx) => (
               <div
                 key={idx}
-                className="text-sm text-gray-600 dark:text-gray-300 py-1 border-b border-gray-200 dark:border-slate-600/50 last:border-0"
+                className="text-xs text-gray-600 dark:text-gray-300 py-0.5 border-b border-gray-200 dark:border-slate-600/50 last:border-0"
               >
                 • {note}
               </div>
             ))}
+            {todo.notes.length > 2 && (
+              <div className="text-[10px] text-gray-400 mt-0.5">
+                +{todo.notes.length - 2} more
+              </div>
+            )}
           </div>
         )}
 
-        {/* NEW: Tags Section */}
+        {/* Tags Section */}
         {todo.tags && todo.tags.length > 0 && (
-          <div className="mt-3 flex items-center gap-2 flex-wrap">
-            <Tag className="w-3 h-3 text-gray-400" />
-            {todo.tags.map((tag, idx) => (
+          <div className="mt-2 flex items-center gap-1 flex-wrap">
+            <Tag className="w-2.5 h-2.5 text-gray-400" />
+            {todo.tags.slice(0, 3).map((tag, idx) => (
               <span
                 key={idx}
-                className="text-xs px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
+                className="text-[10px] px-1.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 border border-blue-200 dark:border-blue-800"
               >
                 #{tag}
               </span>
             ))}
+            {todo.tags.length > 3 && (
+              <span className="text-[10px] text-gray-400">
+                +{todo.tags.length - 3}
+              </span>
+            )}
           </div>
         )}
 
-        {/* NEW: Subtasks Section */}
+        {/* Subtasks Section */}
         {todo.subtasks && todo.subtasks.length > 0 && (
-          <div className="mt-3 p-3 bg-gray-50 dark:bg-slate-700/30 rounded-xl">
-            <div className="flex items-center justify-between text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2">
-              <div className="flex items-center gap-2">
-                <CheckCircle className="w-3 h-3" />
+          <div className="mt-2 p-2 bg-gray-50 dark:bg-slate-700/30 rounded-lg">
+            <div className="flex items-center justify-between text-[10px] font-semibold text-gray-600 dark:text-gray-400 mb-1">
+              <div className="flex items-center gap-1">
+                <CheckCircle className="w-2.5 h-2.5" />
                 <span>
                   Subtasks ({todo.subtasks.filter((st) => st.completed).length}/
                   {todo.subtasks.length})
@@ -473,9 +472,9 @@ const TodoItem = ({
               </div>
               <span>{getCompletionPercentage()}%</span>
             </div>
-            <div className="space-y-1">
-              {todo.subtasks.map((subtask, idx) => (
-                <div key={idx} className="flex items-center gap-2 text-sm">
+            <div className="space-y-0.5">
+              {todo.subtasks.slice(0, 2).map((subtask, idx) => (
+                <div key={idx} className="flex items-center gap-1.5 text-xs">
                   <input
                     type="checkbox"
                     checked={subtask.completed}
@@ -485,135 +484,150 @@ const TodoItem = ({
                         !updatedSubtasks[idx].completed;
                       updateTodo({ ...todo, subtasks: updatedSubtasks });
                     }}
-                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
+                    className="w-3 h-3 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500"
                   />
                   <span
                     className={
                       subtask.completed
-                        ? "line-through text-gray-400 dark:text-gray-500"
-                        : "text-gray-700 dark:text-gray-300"
+                        ? "line-through text-gray-400 dark:text-gray-500 text-xs"
+                        : "text-gray-700 dark:text-gray-300 text-xs"
                     }
                   >
                     {subtask.title}
                   </span>
                 </div>
               ))}
+              {todo.subtasks.length > 2 && (
+                <div className="text-[10px] text-gray-400">
+                  +{todo.subtasks.length - 2} more
+                </div>
+              )}
             </div>
           </div>
         )}
 
         {/* Expand/Collapse Toggle */}
-        {todo.description.length > 100 && (
+        {todo.description && todo.description.length > 80 && (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="mt-2 text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium"
+            className="mt-1 text-xs text-blue-600 dark:text-blue-400 hover:underline font-medium"
           >
             {isExpanded ? "Show less" : "Read more"}
           </button>
         )}
 
-        {/* Metadata */}
-        <div className="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700/50">
-          <div className="grid grid-cols-2 gap-2 text-xs text-gray-500 dark:text-gray-400">
-            <div className="flex items-center gap-1">
-              <Calendar className="w-3 h-3" />
-              <span>Created: {timeAgo(todo.createdAt)}</span>
+        {/* Note Input */}
+        {showNoteInput && (
+          <div
+            ref={noteRef}
+            className="mt-2 p-2 bg-gray-50 dark:bg-slate-700/30 rounded-lg"
+          >
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Write a note..."
+              className="w-full px-2 py-1 text-sm bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              onKeyPress={(e) => e.key === "Enter" && handleAddNoteSubmit()}
+            />
+            <div className="flex gap-1.5 mt-1">
+              <button
+                onClick={handleAddNoteSubmit}
+                className="px-2 py-0.5 text-xs bg-blue-500 text-white rounded-lg hover:bg-blue-600"
+              >
+                Add
+              </button>
+              <button
+                onClick={() => {
+                  setShowNoteInput(false);
+                  setNote("");
+                }}
+                className="px-2 py-0.5 text-xs bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-400"
+              >
+                Cancel
+              </button>
             </div>
-            <div className="flex items-center gap-1">
-              <RefreshCw className="w-3 h-3" />
-              <span>Updated: {timeAgo(todo.updatedAt)}</span>
+          </div>
+        )}
+
+        {/* Metadata */}
+        <div className="mt-3 pt-2 border-t border-gray-200 dark:border-slate-700/50">
+          <div className="grid grid-cols-2 gap-1 text-[10px] text-gray-500 dark:text-gray-400">
+            <div className="flex items-center gap-0.5">
+              <Calendar className="w-2.5 h-2.5" />
+              <span>{timeAgo(todo.createdAt)}</span>
+            </div>
+            <div className="flex items-center gap-0.5">
+              <RefreshCw className="w-2.5 h-2.5" />
+              <span>{timeAgo(todo.updatedAt)}</span>
             </div>
             {todo.dueDate && (
-              <div className="flex items-center gap-1 col-span-2">
-                <Clock className="w-3 h-3" />
+              <div className="flex items-center gap-0.5 col-span-2">
+                <Clock className="w-2.5 h-2.5" />
                 <span>Due: {new Date(todo.dueDate).toLocaleDateString()}</span>
               </div>
             )}
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex flex-wrap gap-3 mt-5">
+        {/* ✅ FIXED: Action Buttons */}
+        <div className="flex gap-2 mt-3">
           {/* Main Action Button */}
           <button
-            onClick={() => updateTodo(todo._id)}
+            onClick={toggleComplete}
             className={`
-              relative flex-1 min-w-[140px] group/btn overflow-hidden rounded-xl
-              transition-all duration-300 transform hover:scale-105
+              flex-1 py-1.5 rounded-lg text-xs font-medium transition-all duration-300
               ${
                 todo.completed
-                  ? "bg-gradient-to-r from-yellow-500 to-orange-500 shadow-lg shadow-yellow-500/30"
-                  : "bg-gradient-to-r from-green-500 to-emerald-500 shadow-lg shadow-green-500/30"
+                  ? "bg-gradient-to-r from-yellow-500 to-orange-500 text-white hover:shadow-lg hover:shadow-yellow-500/30"
+                  : "bg-gradient-to-r from-green-500 to-emerald-500 text-white hover:shadow-lg hover:shadow-green-500/30"
               }
             `}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000"></div>
-            <div className="relative flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium">
-              {todo.completed ? (
-                <>
-                  <RefreshCw className="w-4 h-4" />
-                  <span>Mark Pending</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle className="w-4 h-4" />
-                  <span>Mark Complete</span>
-                </>
-              )}
-            </div>
+            {todo.completed ? "↻ Mark Pending" : "✓ Mark Complete"}
           </button>
 
-          {/* NEW: Quick Actions */}
+          {/* Important Toggle */}
           <button
             onClick={() => onToggleImportant && onToggleImportant(todo._id)}
             className={`
-              p-2.5 rounded-xl transition-all duration-300 transform hover:scale-105
+              px-2.5 py-1.5 rounded-lg transition-all duration-300
               ${
                 todo.important
                   ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400"
                   : "bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 hover:bg-yellow-50 dark:hover:bg-yellow-900/20"
               }
             `}
-            title={
-              todo.important ? "Remove from Important" : "Mark as Important"
-            }
+            title={todo.important ? "Remove Important" : "Mark Important"}
           >
             <Star
-              className={`w-5 h-5 ${todo.important ? "fill-yellow-400" : ""}`}
+              className={`w-3.5 h-3.5 ${todo.important ? "fill-yellow-400" : ""}`}
             />
           </button>
 
           {/* Delete Button */}
           <button
             onClick={() => {
-              if (
-                window.confirm("Are you sure you want to delete this todo?")
-              ) {
+              if (window.confirm("Delete this todo?")) {
                 removeTodo(todo._id);
               }
             }}
-            className="relative flex-1 min-w-[100px] group/del overflow-hidden rounded-xl
-                       bg-gradient-to-r from-red-500 to-rose-600 shadow-lg shadow-red-500/30
-                       transition-all duration-300 transform hover:scale-105"
+            className="px-2.5 py-1.5 rounded-lg bg-gradient-to-r from-red-500 to-rose-600 text-white transition-all duration-300 hover:shadow-lg hover:shadow-red-500/30"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover/del:translate-x-full transition-transform duration-1000"></div>
-            <div className="relative flex items-center justify-center gap-2 px-4 py-2.5 text-white font-medium">
-              <Trash2 className="w-4 h-4 group-hover/del:rotate-12 transition-transform" />
-              <span>Delete</span>
-            </div>
+            <Trash2 className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Progress Bar */}
-        {completionPercentage > 0 && (
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
+        {completionPercentage > 0 && completionPercentage < 100 && (
+          <div className="mt-2">
+            <div className="flex justify-between text-[10px] text-gray-500 dark:text-gray-400 mb-0.5">
               <span>Progress</span>
               <span>{completionPercentage}%</span>
             </div>
-            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1 overflow-hidden">
               <div
-                className={`h-2 rounded-full transition-all duration-1000 ${
+                className={`h-1 rounded-full transition-all duration-1000 ${
                   completionPercentage === 100
                     ? "bg-gradient-to-r from-green-500 to-emerald-500"
                     : "bg-gradient-to-r from-blue-500 to-purple-500"

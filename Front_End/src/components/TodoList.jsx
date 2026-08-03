@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import TodoItem from './TodoItem';
+import { useState } from "react";
+import TodoItem from "./TodoItem";
+
 const TodoList = ({
   todos,
   removeTodo,
@@ -60,7 +61,7 @@ const TodoList = ({
   };
 
   return (
-    <div className="max-w-3xl mx-auto mt-8">
+    <div className="max-w-6xl mx-auto mt-8 px-4">
       {/* Filter and Sort Controls */}
       <div className="flex flex-wrap gap-2 mb-6 p-4 bg-white/50 dark:bg-slate-800/50 rounded-xl backdrop-blur-sm">
         <div className="flex flex-wrap gap-2 flex-1">
@@ -113,7 +114,7 @@ const TodoList = ({
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredTodos.map((todo, index) => (
             <div
               key={todo._id || index}

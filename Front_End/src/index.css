@@ -63,6 +63,18 @@ textarea::-webkit-scrollbar-thumb {
 textarea::-webkit-scrollbar-thumb:hover {
   background: #2563eb;
 }
+/* ✅ NEW - Two cards per row with flex */
+.todo-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+}
+
+.todo-card {
+    flex: 0 0 calc(50% - 20px); /* 2 cards per row */
+    /* Or use: flex: 0 0 45%; */
+}
 
 /* Glassmorphism enhancement */
 .glass-effect {
