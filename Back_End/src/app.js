@@ -7,16 +7,13 @@ const dashBoardRouter = require("./routes/dashBoard.routes");
 
 const app = express();
 app.use(express.json());
-app.use(cors());
 app.use(
-  cookieParser({
-    origin: [
-      "http://localhost:5173",
-      "https://to-do-mern-sandy.vercel.app",
-    ],
+  cors({
+    origin: ["http://localhost:5173", "https://to-do-mern-sandy.vercel.app"],
     credentials: true,
   }),
 );
+app.use(cookieParser());
 
 app.use("/api/todo", router);
 app.use("/api/auth", userRouter);
